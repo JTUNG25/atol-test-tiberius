@@ -36,4 +36,4 @@ apptainer-args: "-B $PWD,$TMPDIR,/data \
   --nv \
   -H $(mktemp -d) \
   --pwd $PWD \
-  --writable-tmpfs"
+  --containall --cleanenv --writable-tmpfs"

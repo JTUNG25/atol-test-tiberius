@@ -9,8 +9,8 @@ rule target:
 rule tiberius:
     input:
         fasta="data/{genome}.fasta",
-        model_cfg="data/mammalia_softmasking_v2.yaml",
-        # model="data/tiberius_weights"
+        # model_cfg="data/mammalia_softmasking_v2.yaml",
+        model="data/tiberius_weights_v2"
     output:
         gtf="results/tiberius/{genome}.gtf",
     params:
@@ -31,8 +31,8 @@ rule tiberius:
         # don't get shipped either.
         "python /usr/local/lib/python3.12/site-packages/tiberius/main.py "
         "--genome {input.fasta} "
-        # "--model {input.model} "
-        "--model_cfg {input.model_cfg} "
+        "--model {input.model} "
+        # "--model_cfg {input.model_cfg} "
         "--out {output.gtf} "
         "--seq_len {params.seq_len} "
         "&> {log}"
