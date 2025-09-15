@@ -14,6 +14,15 @@ rule tiberius:
         gtf="results/tiberius/{genome}.gtf",
     params:
         seq_len=259992,
+    threads:
+        1
+    resources:
+        mem="32G",
+        runtime="6h",
+        gpu=1,
+        gpu_manufacturer="nvidia"
+    log:
+        "logs/tiberius/{genome}.log",
     container:
         "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0"
     shell:
