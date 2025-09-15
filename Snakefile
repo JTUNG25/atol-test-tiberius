@@ -23,7 +23,9 @@ rule tiberius:
     log:
         "logs/tiberius/{genome}.log",
     container:
-        "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0"
+        # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0"
+        # FIXME. The biocontainer tensorflow doesn't to work, but the dev container isn't versioned.
+        "docker://larsgabriel23/tiberius:latest"
     shell:
         # FIXME. python package doesn't get installed in biocontainer. Models
         # don't get shipped either. Provide the model weights (not config).
