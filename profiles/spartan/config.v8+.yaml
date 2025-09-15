@@ -1,7 +1,6 @@
 ---
 executor: cluster-generic
-cluster-generic-submit-cmd:
-  mkdir -p logs/{rule} &&
+cluster-generic-submit-cmd: mkdir -p logs/{rule} &&
   sbatch
   --time={resources.runtime}
   {resources.partitionFlag}
@@ -10,7 +9,7 @@ cluster-generic-submit-cmd:
   --job-name=smk-{rule}
   --output=logs/{rule}/{rule}-%j.out
   --parsable
-  # --gres=gpu:{resources.gpu}
+  --gpus={resources.gpu}
 cluster-generic-status-cmd: status-sacct-robust.sh
 cluster-generic-cancel-cmd: scancel
 default-resources:
@@ -18,7 +17,7 @@ default-resources:
   - mem_mb=4000
   - time=5
   - proj=punim1712
-  # - gpu=0
+  - gpu=0
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10
