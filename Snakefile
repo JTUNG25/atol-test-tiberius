@@ -10,7 +10,7 @@ rule tiberius:
     input:
         fasta="data/{genome}.fasta",
         # model_cfg="data/mammalia_softmasking_v2.yaml",
-        model="data/tiberius_weights.tgz"
+        model="data/tiberius_weights"
     output:
         gtf="results/tiberius/{genome}.gtf",
     params:
