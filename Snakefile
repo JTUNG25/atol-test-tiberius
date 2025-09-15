@@ -19,8 +19,8 @@ rule tiberius:
     resources:
         mem="32G",
         runtime="6h",
-        gpu=1,
-        gpu_manufacturer="nvidia"
+        # gpu=1,
+        # gpu_manufacturer="nvidia"
     log:
         "logs/tiberius/{genome}.log",
     container:
