@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-
+input_genomes=["414129","A_magna","E_pictum","R_gram","X_john"]
 
 rule target:
     input:
-        "results/tiberius/RGram.gtf",
+        expand("results/tiberius/{genome}.gtf", genome=input_genomes),
 
 
 rule tiberius:
@@ -17,7 +17,7 @@ rule tiberius:
     threads: 1
     resources:
         mem="32G",
-        runtime=360,
+        runtime=240,
         gpu=1,
         partitionFlag="--partition=gpu-a100",
     log:
