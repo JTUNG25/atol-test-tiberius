@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-input_genomes=["414129","A_magna","E_pictum","R_gram","X_john"]
+input_genomes = ["414129", "A_magna", "E_pictum", "R_gram", "X_john"]
+
 
 rule target:
     input:
@@ -14,9 +15,8 @@ rule tiberius:
         gtf="results/tiberius/{genome}.gtf",
     params:
         seq_len=259992,
-    threads: 1
     resources:
-        mem="32G",
+        mem="256G",
         runtime=240,
         gpu=1,
         partitionFlag="--partition=gpu-a100",
