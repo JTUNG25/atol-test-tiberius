@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-input_genomes = ["414129", "A_magna", "E_pictum", "R_gram", "X_john"]
+input_genomes = ["414129", "A_magna", "E_pictum", "R_gram", "X_john", "T_triandra", "H_bino"]
 
 
 rule target:
