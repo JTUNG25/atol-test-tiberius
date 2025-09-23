@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 input_genomes = [
-    "414129",
     "A_magna",
     "E_pictum",
     "R_gram",
     "X_john",
     "T_triandra",
     "H_bino",
-    "P_vit"
+    "P_vit",
 ]
 
 
@@ -39,6 +38,7 @@ rule tiberius:
     shell:
         # FIXME. python package doesn't get installed in biocontainer. Models
         # don't get shipped either. Provide the model weights (not config).
+        # "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/tiberius_weights_v2.tar.gz"
         # Find the weights URL in the config and download it manually. This
         # needs to be checked for the dev container.
         "tiberius.py "
