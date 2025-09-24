@@ -7,7 +7,8 @@ input_genomes = [
     "T_triandra",
     "H_bino",
     "P_vit",
-    "P_halo"
+    "P_halo",
+    "N_erebi"
 ]
 
 
@@ -18,7 +19,7 @@ rule target:
 
 rule tiberius:
     input:
-        fasta="data/{genome}.fasta",
+        fasta="data/genome/{genome}.fasta",
         model="data/tiberius_weights_v2",
     output:
         gtf="results/tiberius/{genome}.gtf",
