@@ -7,6 +7,7 @@ input_genomes = [
     "T_triandra",
     "H_bino",
     "P_vit",
+    "P_halo"
 ]
 
 
