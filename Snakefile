@@ -19,7 +19,7 @@ rule target:
 
 rule tiberius:
     input:
-        fasta="data/genome/{genome}.fasta",
+        fasta="data/genomes/{genome}.fasta",
         model="data/tiberius_weights_v2",
     output:
         gtf="results/tiberius/{genome}.gtf",
