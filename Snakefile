@@ -8,7 +8,8 @@ input_genomes = [
     "H_bino",
     "P_vit",
     "P_halo",
-    "N_erebi"
+    "N_erebi",
+    "N_cryptoides",
 ]
 
 
