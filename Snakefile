@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# containers
+tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
+
+# config
 input_genomes = [
     "A_magna",
     "E_pictum",
@@ -15,7 +20,18 @@ input_genomes = [
 
 rule target:
     input:
-        expand("results/tiberius/{genome}.gtf", genome=input_genomes),
+        expand("results/tiberius/{genome}.gtf.gz", genome=input_genomes),
+
+
+rule compress_tiberius_output:
+    input:
+        gtf="results/tiberius/{genome}.gtf"
+    output:
+        gtf.gz="results/tiberius/{genome}.gtf.gz"
+    container:
+        tiberius
+    shell:
+        "gzip -k {input.gtf} ."
 
 
 rule tiberius:
@@ -37,7 +53,7 @@ rule tiberius:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
         # isn't versioned.
-        "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
+       tiberius
     shell:
         # FIXME. python package doesn't get installed in biocontainer. Models
         # don't get shipped either. Provide the model weights (not config).
