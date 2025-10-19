@@ -28,6 +28,13 @@ rule compress_tiberius_output:
         gtf="results/tiberius/{genome}.gtf",
     output:
         gtf_gz="results/tiberius/{genome}.gtf.gz",
+    resources:
+        mem="4G",
+        runtime=10,
+        gpu=1,
+        partitionFlag="--partition=gpu-a100",
+    log:
+        "logs/tiberius/compressed_results/{genome}.log",
     container:
         tiberius
     shell:
