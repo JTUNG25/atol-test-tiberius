@@ -25,9 +25,9 @@ rule target:
 
 rule compress_tiberius_output:
     input:
-        gtf="results/tiberius/{genome}.gtf"
+        gtf="results/tiberius/{genome}.gtf",
     output:
-        gtf.gz="results/tiberius/{genome}.gtf.gz"
+        gtf_gz="results/tiberius/{genome}.gtf.gz",
     container:
         tiberius
     shell:
@@ -53,7 +53,7 @@ rule tiberius:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
         # isn't versioned.
-       tiberius
+        tiberius
     shell:
         # FIXME. python package doesn't get installed in biocontainer. Models
         # don't get shipped either. Provide the model weights (not config).
