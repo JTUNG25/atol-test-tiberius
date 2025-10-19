@@ -38,7 +38,7 @@ rule compress_tiberius_output:
     container:
         tiberius
     shell:
-        "gzip -k {input.gtf} ."
+        "gzip -k {input.gtf}"
 
 
 rule tiberius:
