@@ -50,7 +50,7 @@ rule tiberius:
         gtf="results/tiberius/{genome}.gtf",
     params:
         seq_len=259992,
-        batch_size = 4,
+        batch_size=4,
     resources:
         mem="256G",
         runtime=480,
@@ -74,5 +74,5 @@ rule tiberius:
         "--model {input.model} "
         "--out {output.gtf} "
         "--seq_len {params.seq_len} "
-        "--batch_size {params.batch_size}"
+        "--batch_size {params.batch_size} "
         "&> {log}"
