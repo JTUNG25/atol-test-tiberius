@@ -31,7 +31,7 @@ rule compress_tiberius_output:
         gtf_gz="results/tiberius/{genome}.gtf.gz",
     resources:
         mem="4G",
-        runtime=10,
+        runtime=20,
         gpu=1,
         partitionFlag="--partition=gpu-a100",
     log:
@@ -49,13 +49,14 @@ rule tiberius:
     output:
         gtf="results/tiberius/{genome}.gtf",
     params:
-        seq_len=259992,
-        batch_size=4,
+        #seq_len=259992,
+        batch_size=16,
     resources:
         mem="256G",
-        runtime=480,
+        runtime=240,
         gpu=1,
-        partitionFlag="--partition=gpu-a100",
+        partitionFlag="--partition=gpu-a100-short",
+        exclusive="--exclusive",
     log:
         "logs/tiberius/{genome}.log",
     container:
@@ -73,6 +74,7 @@ rule tiberius:
         "--genome {input.fasta} "
         "--model {input.model} "
         "--out {output.gtf} "
-        "--seq_len {params.seq_len} "
+
         "--batch_size {params.batch_size} "
         "&> {log}"
+        #"--seq_len {params.seq_len} "
