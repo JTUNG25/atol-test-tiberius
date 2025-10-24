@@ -88,7 +88,7 @@ rule partition:
     input:
         "results/{genome}/reformat/genome.fa",
     output:
-        temp(expand("results/{{genome}}/partition/genome.{i}.fa", i=splits)),
+        expand("results/{{genome}}/partition/genome.{i}.fa", i=splits),
     log:
         "logs/partition/{genome}.log",
     threads: 1
@@ -97,7 +97,7 @@ rule partition:
         ways=no_of_splits,
     resources:
         runtime=60,
-        mem_mb=int(64e3),
+        mem_mb=int(128e3),
     container:
         bbmap
     shell:
