@@ -81,7 +81,7 @@ rule partition:
     input:
         temp("results/{genome}/reformat/genome.fa"),
     output:
-        expand(temp("results/{{genome}}/partition/genome.{i}.fa"), i=range(0, split, 1)),
+        temp(expand("results/{{genome}}/partition/genome.{i}.fa", i=range(0, split, 1))),
     log:
         "logs/partition/{genome}.log",
     threads: 1
