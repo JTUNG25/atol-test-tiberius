@@ -2,7 +2,7 @@
 
 # containers
 tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
-
+bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
 # config
 input_genomes = [
     "N_forsteri",
