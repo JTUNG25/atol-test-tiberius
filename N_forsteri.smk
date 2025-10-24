@@ -7,7 +7,14 @@ bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
 input_genomes = [
     "N_forsteri",
 ]
-split = 100
+
+no_of_splits = 100
+splits = [str(x) for x in range(0, no_of_splits, 1)]
+
+
+wildcard_constraints:
+    i="|".join(splits),
+    genome="|".join(input_genomes),
 
 
 rule target:
@@ -33,7 +40,7 @@ rule compress_tiberius_output:
 
 rule gather_annotation:
     input:
-        gtf=expand("results/tiberius/{{genome}}.{i}.gtf", i=range(0, split, 1)),
+        gtf=expand("results/tiberius/{{genome}}.{i}.gtf", i=splits),
     output:
         gtf="results/tiberius/{genome}.gtf",
     shell:
@@ -81,13 +88,13 @@ rule partition:
     input:
         "results/{genome}/reformat/genome.fa",
     output:
-        temp(expand("results/{{genome}}/partition/genome.{i}.fa", i=range(0, split, 1))),
+        temp(expand("results/{{genome}}/partition/genome.{i}.fa", i=splits)),
     log:
         "logs/partition/{genome}.log",
     threads: 1
     params:
         pattern="results/{genome}/partition/genome.%.fa",
-        ways=split,
+        ways=no_of_splits,
     resources:
         runtime=10,
         mem_mb=int(8e3),
