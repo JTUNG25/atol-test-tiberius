@@ -97,7 +97,7 @@ rule partition:
         ways=no_of_splits,
     resources:
         runtime=10,
-        mem_mb=int(8e3),
+        mem_mb=int(32e3),
     container:
         bbmap
     shell:
@@ -118,7 +118,7 @@ rule reformat:
     threads: 1
     resources:
         runtime=10,
-        mem_mb=int(8e3),
+        mem_mb=int(32e3),
     container:
         bbmap
     shell:
