@@ -79,7 +79,7 @@ rule tiberius:
 
 rule partition:
     input:
-        temp("results/{genome}/reformat/genome.fa"),
+        "results/{genome}/reformat/genome.fa",
     output:
         temp(expand("results/{{genome}}/partition/genome.{i}.fa", i=range(0, split, 1))),
     log:
