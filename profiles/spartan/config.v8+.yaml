@@ -4,7 +4,7 @@ cluster-generic-submit-cmd: mkdir -p logs/{rule} &&
   sbatch
   --time={resources.runtime}
   {resources.partitionFlag}
-  {resources.exlusive}
+  {resources.exclusive}
   --cpus-per-task={threads}
   --mem={resources.mem_mb}
   --job-name=smk-{rule}
@@ -15,7 +15,7 @@ cluster-generic-status-cmd: status-sacct-robust.sh
 cluster-generic-cancel-cmd: scancel
 default-resources:
   - partitionFlag=""
-  - exlusive=""
+  - exclusive=""
   - mem_mb=4000
   - time=5
   - proj=punim1712

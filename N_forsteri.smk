@@ -5,18 +5,9 @@ tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af
 
 # config
 input_genomes = [
-    "A_magna",
-    "E_pictum",
-    "R_gram",
-    "X_john",
-    "T_triandra",
-    "H_bino",
-    "P_vit",
-    "P_halo",
-    "N_erebi",
-    "N_cryptoides",
     "N_forsteri",
 ]
+split = 100
 
 
 rule target:
@@ -32,8 +23,6 @@ rule compress_tiberius_output:
     resources:
         mem="4G",
         runtime=20,
-        gpu=1,
-        partitionFlag="--partition=gpu-h100",
     log:
         "logs/tiberius/compressed_results/{genome}.log",
     container:
@@ -42,23 +31,32 @@ rule compress_tiberius_output:
         "gzip -k {input.gtf}"
 
 
-rule tiberius:
+rule gather_annotation:
     input:
-        fasta="data/genomes/{genome}.fasta",
-        model="data/tiberius_weights_v2",
+        gtf=expand("results/tiberius/{{genome}}.{i}.gtf", i=range(0, split, 1)),
     output:
         gtf="results/tiberius/{genome}.gtf",
+    shell:
+        "cat {input.gtf} > {output.gtf}"
+
+
+rule tiberius:
+    input:
+        fasta="results/{genome}/partition/genome.{i}.fa",
+        model="data/tiberius_weights_v2",
+    output:
+        gtf="results/tiberius/{genome}.{i}.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
     resources:
-        mem="512G",
+        mem="360G",
         runtime=240,
         gpu=1,
-        partitionFlag="--partition=gpu-h100",
+        partitionFlag="--partition=gpu-a100-short",
         exclusive="--exclusive",
     log:
-        "logs/tiberius/{genome}.log",
+        "logs/tiberius/{genome}.{i}.log",
     container:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
@@ -75,7 +73,47 @@ rule tiberius:
         "--genome {input.fasta} "
         "--model {input.model} "
         "--out {output.gtf} "
-
         "--batch_size {params.batch_size} "
         "&> {log}"
-        #"--seq_len {params.seq_len} "
+
+
+rule partition:
+    input:
+        temp("results/{genome}/reformat/genome.fa"),
+    output:
+        expand(temp("results/{{genome}}/partition/genome.{i}.fa"), i=range(0, split, 1)),
+    log:
+        "logs/partition/{genome}.log",
+    threads: 1
+    params:
+        pattern="results/{genome}/partition/genome.%.fa",
+        ways=split,
+    resources:
+        runtime=10,
+        mem_mb=int(8e3),
+    container:
+        bbmap
+    shell:
+        "partition.sh -Xmx{resources.mem_mb}m "
+        "bp=t "
+        "ways={params.ways} "
+        "in={input} "
+        "out={params.pattern} 2>{log}"
+
+
+rule reformat:
+    input:
+        "data/genomes/{genome}.fasta",
+    output:
+        temp("results/{genome}/reformat/genome.fa"),
+    log:
+        "logs/reformat/{genome}.log",
+    threads: 1
+    resources:
+        runtime=10,
+        mem_mb=int(8e3),
+    container:
+        bbmap
+    shell:
+        "reformat.sh -Xmx{resources.mem_mb}m "
+        "in={input} out={output} 2>{log}"
