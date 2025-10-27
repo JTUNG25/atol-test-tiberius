@@ -101,7 +101,8 @@ rule shred:
         bbmap
     shell:
         "shred.sh -Xmx{resources.mem_mb}m "
-        "size=500000000 "
+        "length=500000000 "
+        "ovrelap=o"
         "prefix=genome.20.part "
         "in={input} "
         "out={params.pattern} 2>{log}"
