@@ -102,7 +102,7 @@ rule shred:
     shell:
         "shred.sh -Xmx{resources.mem_mb}m "
         "length=500000000 "
-        "ovrelap=o"
+        "ovrelap=0 "
         "prefix=genome.20.part "
         "in={input} "
         "out={params.pattern} 2>{log}"
