@@ -86,7 +86,7 @@ rule tiberius:
 
 rule partition:
     input:
-        "results/{{genome}}/partition/genome.20.fa",
+        "results/{genome}/partition/genome.20.fa",
     output:
         expand("results/{{genome}}/partition/genome.20.{i}.fa", i=splits),
     log:
