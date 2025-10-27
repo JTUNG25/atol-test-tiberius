@@ -100,7 +100,7 @@ rule shred:
     container:
         bbmap
     shell:
-        "reformat.sh -Xmx{resources.mem_mb}m "
+        "shred.sh -Xmx{resources.mem_mb}m "
         "size=500000000 "
         "prefix=genome.20.part "
         "in={input} "
