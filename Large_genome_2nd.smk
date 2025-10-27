@@ -94,7 +94,6 @@ rule partition:
     threads: 1
     params:
         pattern="results/{genome}/partition/genome.%.fa",
-        ways=no_of_splits,
     resources:
         runtime=10,
         mem_mb=int(128e3),
@@ -103,6 +102,6 @@ rule partition:
     shell:
         "partition.sh -Xmx{resources.mem_mb}m "
         "bp=t "
-        "ways={params.ways} "
+        "size=500m "
         "in={input} "
         "out={params.pattern} 2>{log}"
