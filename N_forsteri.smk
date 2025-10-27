@@ -60,7 +60,7 @@ rule tiberius:
         mem="360G",
         runtime=240,
         gpu=1,
-        partitionFlag="--partition=gpu-a100-short",
+        partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
         "logs/tiberius/{genome}.{i}.log",
@@ -96,7 +96,7 @@ rule partition:
         pattern="results/{genome}/partition/genome.%.fa",
         ways=no_of_splits,
     resources:
-        runtime=60,
+        runtime=10,
         mem_mb=int(128e3),
     container:
         bbmap
