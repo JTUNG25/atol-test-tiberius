@@ -93,7 +93,7 @@ rule shred:
         "logs/partition/{genome}.log",
     threads: 1
     params:
-        pattern="results/{genome}/partition/genome.part%.fa",
+        pattern="results/{genome}/partition/genome.20.part%.fa",
     resources:
         runtime=10,
         mem_mb=int(128e3),
@@ -103,6 +103,5 @@ rule shred:
         "shred.sh -Xmx{resources.mem_mb}m "
         "length=500000000 "
         "overlap=0 "
-        "prefix=genome.20.part "
         "in={input} "
         "out={params.pattern} 2>{log}"
