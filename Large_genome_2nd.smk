@@ -84,7 +84,7 @@ rule tiberius:
         "&> {log}"
 
 
-rule partition:
+rule reformat:
     input:
         "results/{genome}/partition/genome.20.fa",
     output:
@@ -100,8 +100,7 @@ rule partition:
     container:
         bbmap
     shell:
-        "partition.sh -Xmx{resources.mem_mb}m "
-        "bp=t "
+        "reformat.sh -Xmx{resources.mem_mb}m "
         "size=500m "
         "in={input} "
         "out={params.pattern} 2>{log}"
