@@ -49,7 +49,7 @@ rule gather_annotation:
 
 rule tiberius:
     input:
-        fasta="results/{{genome}}/partition/genome.20.{i}.fa",
+        fasta="results/{genome}/partition/genome.20.{i}.fa",
         model="data/tiberius_weights_v2",
     output:
         gtf="results/tiberius/{genome}.20.{i}.gtf",
