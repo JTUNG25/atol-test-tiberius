@@ -40,7 +40,7 @@ rule compress_tiberius_output:
 
 rule gather_annotation:
     input:
-        gtf=expand("results/tiberius/{{genome}}.{i}.gtf", i=splits),
+        gtf=expand("results/tiberius/{{genome}}.20.{i}.gtf", i=splits),
     output:
         gtf="results/tiberius/{genome}.gtf",
     shell:
