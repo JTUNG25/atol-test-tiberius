@@ -2,7 +2,7 @@
 
 # containers
 tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
-bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for
+bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for bp=t
 # config
 input_genomes = [
     "N_forsteri",
@@ -40,7 +40,7 @@ rule compress_tiberius_output:
 
 rule gather_annotation:
     input:
-        gtf=expand("results/tiberius/{{genome}}.20.{i}.gtf", i=splits),
+        gtf=expand("results/tiberius/{{genome}}.20.part{i}.gtf", i=splits),
     output:
         gtf="results/tiberius/{genome}.gtf",
     shell:
@@ -49,10 +49,10 @@ rule gather_annotation:
 
 rule tiberius:
     input:
-        fasta="results/{genome}/partition/genome.20.{i}.fa",
+        fasta="results/{genome}/partition/genome.20.part{i}.fa",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}.20.{i}.gtf",
+        gtf="results/tiberius/{genome}.20.part{i}.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
@@ -84,16 +84,16 @@ rule tiberius:
         "&> {log}"
 
 
-rule reformat:
+rule shred:
     input:
         "results/{genome}/partition/genome.20.fa",
     output:
-        expand("results/{{genome}}/partition/genome.20.{i}.fa", i=splits),
+        expand("results/{{genome}}/partition/genome.20.part{i}.fa", i=splits),
     log:
         "logs/partition/{genome}.log",
     threads: 1
     params:
-        pattern="results/{genome}/partition/genome.%.fa",
+        pattern="results/{genome}/partition/genome.part%.fa",
     resources:
         runtime=10,
         mem_mb=int(128e3),
@@ -101,6 +101,7 @@ rule reformat:
         bbmap
     shell:
         "reformat.sh -Xmx{resources.mem_mb}m "
-        "size=500m "
+        "size=500000000 "
+        "prefix=genome.20.part "
         "in={input} "
         "out={params.pattern} 2>{log}"
