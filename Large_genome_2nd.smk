@@ -36,11 +36,7 @@ rule demuxbyname:
     input:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
-        expand(
-            "results/{{genome}}/partition/demux/genome.20.shred.{chunk}.fa",
-            genome=input_genomes,
-            chunk=[0, 1],
-        ),
+        directory("results/{genome}/partition/demux/")
     log:
         "logs/partition/{genome}.demux.log",
     threads: 1
@@ -53,7 +49,7 @@ rule demuxbyname:
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
         "header=f "
         "in={input} "
-        "out={output} "
+        "out={output}/genome.20.shred.%_.fa "
         "2>{log}"
 
 
