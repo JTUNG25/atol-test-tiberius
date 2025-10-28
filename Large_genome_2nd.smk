@@ -88,9 +88,9 @@ rule demuxbyname:
     input:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
-        "results/{genome}/partition/genome.20.shred.%.fa",
+        directory("results/{genome}/partition/demux/"),
     log:
-        "logs/partition/{genome}.demuxbyname.log",
+        "logs/partition/{genome}.demux.log",
     threads: 1
     resources:
         runtime=10,
@@ -99,8 +99,10 @@ rule demuxbyname:
         bbmap
     shell:
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
+        "namesubs=0 "
         "in={input} "
-        "out={output} 2>{log}"
+        "out={output}/genome.20.shred.%_.fa "
+        "2>{log}"
 
 
 rule shred:
