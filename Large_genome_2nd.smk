@@ -40,7 +40,7 @@ rule compress_tiberius_output:
 
 rule gather_annotation:
     input:
-        gtf=expand("results/tiberius/{{genome}}.20.part{i}.gtf", i=splits),
+        gtf="results/tiberius/{genome}.20.shred.%.gtf",
     output:
         gtf="results/tiberius/{genome}.gtf",
     shell:
@@ -49,10 +49,10 @@ rule gather_annotation:
 
 rule tiberius:
     input:
-        fasta="results/{genome}/partition/genome.20.part{i}.fa",
+        fasta="results/{genome}/partition/genome.20.shred.%.fa",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}.20.part{i}.gtf",
+        gtf="results/tiberius/{genome}.20.shred.%.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
@@ -63,7 +63,7 @@ rule tiberius:
         partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
-        "logs/tiberius/{genome}.20.{i}.log",
+        "logs/tiberius/{genome}.20.%.log",
     container:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
@@ -84,16 +84,33 @@ rule tiberius:
         "&> {log}"
 
 
+rule demuxbyname:
+    input:
+        "results/{genome}/partition/genome.20.shred.fa",
+    output:
+        "results/{genome}/partition/genome.20.shred.%.fa",
+    log:
+        "logs/partition/{genome}.demuxbyname.log",
+    threads: 1
+    resources:
+        runtime=10,
+        mem_mb=int(128e3),
+    container:
+        bbmap
+    shell:
+        "demuxbyname.sh -Xmx{resources.mem_mb}m "
+        "in={input} "
+        "out={output} 2>{log}"
+
+
 rule shred:
     input:
         "results/{genome}/partition/genome.20.fa",
     output:
-        expand("results/{{genome}}/partition/genome.20.part{i}.fa", i=splits),
+        "results/{genome}/partition/genome.20.shred.fa",
     log:
-        "logs/partition/{genome}.log",
+        "logs/partition/{genome}.shred.log",
     threads: 1
-    params:
-        pattern="results/{genome}/partition/genome.20.part%.fa",
     resources:
         runtime=10,
         mem_mb=int(128e3),
@@ -102,6 +119,7 @@ rule shred:
     shell:
         "shred.sh -Xmx{resources.mem_mb}m "
         "length=500000000 "
-        "overlap=0 "
+        "overlap=1000000 "
+        "equal=f "
         "in={input} "
-        "out={params.pattern} 2>{log}"
+        "out={output} 2>{log}"
