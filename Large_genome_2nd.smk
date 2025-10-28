@@ -18,21 +18,17 @@ wildcard_constraints:
 # functions
 def demux_files_for_genome(wildcards):
     pattern = f"results/{wildcards.genome}/partition/demux/genome.20.shred.*.fa"
-    files = sorted(glob.glob(pattern))
-    if not files:
-        raise ValueError(f"No demuxed files found for genome {wildcards.genome}")
-    return files
+    return sorted(glob.glob(pattern))
 
 
 rule target:
+    rule target:
     input:
-        demux_files_for_genome=lambda wildcards: glob.glob(
-            "results/N_forsteri/partition/demux/genome.20.shred.*.fa"
-        ),
-    output:
-        "results/{genome}/target_done.txt"
+        expand("results/{genome}/partition/demux/genome.20.shred.{chunk}.fa",
+               genome=input_genomes,
+               chunk=[0,1]) 
     shell:
-        "echo {input} > {output}"
+        "echo 'done' > results/target_done.txt"
 
 
 rule demuxbyname:
