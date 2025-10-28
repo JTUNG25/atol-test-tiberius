@@ -29,8 +29,6 @@ rule target:
         demux_files_for_genome=lambda wildcards: glob.glob(
             "results/N_forsteri/partition/demux/genome.20.shred.*.fa"
         ),
-    shell:
-        "echo {input}"
 
 
 rule demuxbyname:
