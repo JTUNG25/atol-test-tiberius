@@ -37,7 +37,7 @@ rule demuxbyname:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
         expand(
-            "results/{genome}/partition/demux/genome.20.shred.{chunk}.fa",
+            "results/{{genome}}/partition/demux/genome.20.shred.{chunk}.fa",
             genome=input_genomes,
             chunk=[0, 1],
         ),
