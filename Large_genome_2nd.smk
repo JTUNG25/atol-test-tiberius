@@ -22,11 +22,12 @@ def demux_files_for_genome(wildcards):
 
 
 rule target:
-    rule target:
     input:
-        expand("results/{genome}/partition/demux/genome.20.shred.{chunk}.fa",
-               genome=input_genomes,
-               chunk=[0,1]) 
+        expand(
+            "results/{genome}/partition/demux/genome.20.shred.{chunk}.fa",
+            genome=input_genomes,
+            chunk=[0, 1],
+        ),
     shell:
         "echo 'done' > results/target_done.txt"
 
