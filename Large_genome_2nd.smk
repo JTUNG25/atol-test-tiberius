@@ -11,7 +11,6 @@ input_genomes = [
 ]
 
 wildcard_constraints:
-    i="|".join(splits),
     genome="|".join(input_genomes),
 
 # functions
