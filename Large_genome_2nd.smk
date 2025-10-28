@@ -25,10 +25,10 @@ def demux_files_for_genome(wildcards):
 
 rule target:
     input:
-    demux_files_for_genome
+        demux_files_for_genome
 
     shell:
-    "echo {input}"
+        "echo {input}"
     
 
 rule demuxbyname:
