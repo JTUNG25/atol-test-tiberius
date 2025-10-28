@@ -36,7 +36,11 @@ rule demuxbyname:
     input:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
-        expand("results/{genome}/partition/demux/genome.20.shred.{chunk}.fa", chunk=[0,1]),
+        expand(
+            "results/{genome}/partition/demux/genome.20.shred.{chunk}.fa",
+            genome=input_genomes,
+            chunk=[0, 1],
+        ),
     log:
         "logs/partition/{genome}.demux.log",
     threads: 1
