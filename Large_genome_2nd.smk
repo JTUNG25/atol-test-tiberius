@@ -51,7 +51,7 @@ rule demuxbyname:
         bbmap
     shell:
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
-        "namesubs=0 "
+        "header=f "
         "in={input} "
         "out={output} "
         "2>{log}"
