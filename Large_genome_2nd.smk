@@ -88,7 +88,7 @@ rule demuxbyname:
     input:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
-        directory("results/{genome}/partition/demux/"),
+        directory("results/{genome}/partition/"),
     log:
         "logs/partition/{genome}.demux.log",
     threads: 1
