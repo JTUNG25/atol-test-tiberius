@@ -29,6 +29,10 @@ rule target:
         demux_files_for_genome=lambda wildcards: glob.glob(
             "results/N_forsteri/partition/demux/genome.20.shred.*.fa"
         ),
+    output:
+        "results/{genome}/target_done.txt"
+    shell:
+        "echo {input} > {output}"
 
 
 rule demuxbyname:
