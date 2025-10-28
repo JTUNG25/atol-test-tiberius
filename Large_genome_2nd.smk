@@ -23,10 +23,13 @@ def demux_files_for_genome(wildcards):
     return files
 
 
-    
 rule target:
     input:
     demux_files_for_genome
+
+    shell:
+    "echo {input}"
+    
 
 rule demuxbyname:
     input:
