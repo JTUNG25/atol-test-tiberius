@@ -10,8 +10,10 @@ input_genomes = [
     "N_forsteri",
 ]
 
+
 wildcard_constraints:
     genome="|".join(input_genomes),
+
 
 # functions
 def demux_files_for_genome(wildcards):
@@ -24,11 +26,12 @@ def demux_files_for_genome(wildcards):
 
 rule target:
     input:
-        demux_files_for_genome
-
+        demux_files_for_genome=lambda wildcards: glob.glob(
+            "results/N_forsteri/partition/demux/genome.20.shred.*.fa"
+        ),
     shell:
         "echo {input}"
-    
+
 
 rule demuxbyname:
     input:
