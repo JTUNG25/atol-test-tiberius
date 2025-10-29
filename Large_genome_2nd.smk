@@ -17,12 +17,14 @@ wildcard_constraints:
 
 
 # functions
-def get_demux_suffixes(wildcards):
+def get_tiberius_output(wildcards):
     """Get all demuxed files after checkpoint completes"""
-    checkpoint_output = checkpoints.demuxbyname.get(**wildcards).output[0]
-    file_pattern = os.path.join(checkpoint_output, "genome.20.shred.{suffix}.fa")
-    suffixes = glob_wildcards(file_pattern).suffix
-    return suffixes
+    checkpoint_output = checkpoints.demuxbyname.get(**wildcards).output[outdir]
+    file_pattern = os.path.join(checkpoint_output, "{chunk}.fa")
+    chunks = glob_wildcards(file_pattern).chunk
+    return expand(
+        "results/tiberius/{genome}/{chunk}.gtf", chunk=chunk, genome=wildcards.genome"
+    )
 
 
 # main
@@ -38,10 +40,7 @@ rule target:
 
 rule collect_results:
     input:
-        lambda wildcards: expand(
-            "results/tiberius/{{genome}}.genome.20.shred.{suffix}.gtf",
-            suffix=get_demux_suffixes(wildcards),
-        ),
+        get_tiberius_output,
     output:
         "results/tiberius/{genome}/partition/all_done.txt",
     resources:
@@ -53,10 +52,10 @@ rule collect_results:
 
 rule tiberius:
     input:
-        fasta="results/{genome}/partition/demux/genome.20.shred.{suffix}.fa",
+        fasta="results/{genome}/partition/demux/{chunk}.fa",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}.genome.20.shred.{suffix}.gtf",
+        gtf="results/tiberius/{genome}/{chunk}.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
@@ -67,7 +66,7 @@ rule tiberius:
         partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
-        "logs/tiberius/{genome}.{suffix}.log",
+        "logs/tiberius/{genome}.{chunk}.log",
     container:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
@@ -92,7 +91,7 @@ checkpoint demuxbyname:
     input:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
-        directory("results/{genome}/partition/demux/"),
+        outdir=directory("results/{genome}/partition/demux"),
     log:
         "logs/partition/{genome}.demux.log",
     threads: 1
@@ -103,10 +102,13 @@ checkpoint demuxbyname:
         bbmap
     shell:
         "mkdir -p {output} && "
+        "samtools faidx {input} "
+        "--fai-idx {output.outdir}/index.txt && "
+        "cut -f1 {output.outdir}/index.txt > {output.outdir}/names.txt && "
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
+        "names={output.outdir}/names.txt "
         "in={input} "
-        "out={output}/genome.20.shred.%.fa "
-        "names=auto"
+        "out={output.outdir}/%.fa "
         "2>{log}"
 
 
