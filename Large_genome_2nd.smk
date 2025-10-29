@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import glob
+import os
 
 # containers
 tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
@@ -16,31 +17,80 @@ wildcard_constraints:
 
 
 # functions
-def demux_files_for_genome(wildcards):
-    pattern = f"results/{wildcards.genome}/partition/demux/genome.20.shred.*.fa"
-    return sorted(glob.glob(pattern))
+def get_demux_suffixes(wildcards):
+    """Get all demuxed files after checkpoint completes"""
+    checkpoint_output = checkpoints.demuxbyname.get(**wildcards).output[0]
+    # This finds all the actual output files
+    file_pattern = os.path.join(checkpoint_output, "genome.20.shred.{suffix}.fa")
+    suffixes = glob_wildcards(file_pattern).suffix
+    return suffixes
+
+
+# main
 
 
 rule target:
     input:
         expand(
-            "results/{genome}/partition/demux/genome.20.shred.{chunk}.fa",
+            "results/tiberius/{genome}/partition/all_done.txt",
             genome=input_genomes,
-            chunk=[0, 1],
         ),
+
+
+rule collect_results:
+    input:
+        lambda wildcards: expand(
+            "results/tiberius/{{genome}}.genome.20.shred.{suffix}.gtf",
+            suffix=get_demux_suffixes(wildcards),
+        ),
+    output:
+        "results/tiberius/{genome}/partition/all_done.txt",
     shell:
-        "echo 'done' > results/target_done.txt"
+        "touch {output}"
 
 
-rule demuxbyname:
+rule tiberius:
+    input:
+        fasta="results/{genome}/partition/demux/genome.20.shred.{suffix}.fa",
+        model="data/tiberius_weights_v2",
+    output:
+        gtf="results/tiberius/{genome}.genome.20.shred.{suffix}.gtf",
+    params:
+        #seq_len=259992,
+        batch_size=8,
+    resources:
+        mem="360G",
+        runtime=240,
+        gpu=1,
+        partitionFlag="--partition=gpu-a100",
+        exclusive="--exclusive",
+    log:
+        "logs/tiberius/{genome}.{suffix}.log",
+    container:
+        # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
+        # The biocontainer tensorflow doesn't work, but the dev container
+        # isn't versioned.
+        tiberius
+    shell:
+        # FIXME. python package doesn't get installed in biocontainer. Models
+        # don't get shipped either. Provide the model weights (not config).
+        # "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/tiberius_weights_v2.tar.gz"
+        # Find the weights URL in the config and download it manually. This
+        # needs to be checked for the dev container.
+        "nvidia-smi && "
+        "tiberius.py "
+        "--genome {input.fasta} "
+        "--model {input.model} "
+        "--out {output.gtf} "
+        "--batch_size {params.batch_size} "
+        "&> {log}"
+
+
+checkpoint demuxbyname:
     input:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
-        expand(
-            "results/{{genome}}/partition/demux/genome.20.shred.{chunk}.fa",
-            genome=input_genomes,
-            chunk=[0, 1],
-        ),
+        directory("results/{genome}/partition/demux/"),
     log:
         "logs/partition/{genome}.demux.log",
     threads: 1
@@ -50,10 +100,11 @@ rule demuxbyname:
     container:
         bbmap
     shell:
+        "mkdir -p {output} && "
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
         "header=f "
         "in={input} "
-        "out={output} "
+        "out={output}/genome.20.shred.%.fa "
         "2>{log}"
 
 
