@@ -20,7 +20,6 @@ wildcard_constraints:
 def get_demux_suffixes(wildcards):
     """Get all demuxed files after checkpoint completes"""
     checkpoint_output = checkpoints.demuxbyname.get(**wildcards).output[0]
-    # This finds all the actual output files
     file_pattern = os.path.join(checkpoint_output, "genome.20.shred.{suffix}.fa")
     suffixes = glob_wildcards(file_pattern).suffix
     return suffixes
@@ -45,6 +44,9 @@ rule collect_results:
         ),
     output:
         "results/tiberius/{genome}/partition/all_done.txt",
+    resources:
+        mem="8G",
+        runtime=10,
     shell:
         "touch {output}"
 
@@ -95,8 +97,8 @@ checkpoint demuxbyname:
         "logs/partition/{genome}.demux.log",
     threads: 1
     resources:
+        mem_mb="int(16e3)"
         runtime=10,
-        mem_mb=int(128e3),
     container:
         bbmap
     shell:
@@ -118,7 +120,7 @@ rule shred:
     threads: 1
     resources:
         runtime=10,
-        mem_mb=int(128e3),
+        mem_mb=int(16e3),
     container:
         bbmap
     shell:
