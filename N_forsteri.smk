@@ -8,7 +8,7 @@ input_genomes = [
     "N_forsteri",
 ]
 
-no_of_splits = 100
+no_of_splits = 45
 splits = [str(x) for x in range(0, no_of_splits, 1)]
 
 

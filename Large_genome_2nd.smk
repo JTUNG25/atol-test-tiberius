@@ -23,7 +23,7 @@ def get_tiberius_output(wildcards):
     file_pattern = os.path.join(checkpoint_output, "{chunk}.fa")
     chunks = glob_wildcards(file_pattern).chunk
     return expand(
-        "results/tiberius/{genome}/{chunk}.gtf, chunk=chunk, genome=wildcards.genome"
+        "results/tiberius/{genome}/{chunk}.gtf", chunk=chunks, genome=wildcards.genome
     )
 
 
@@ -96,15 +96,14 @@ checkpoint demuxbyname:
         "logs/partition/{genome}.demux.log",
     threads: 1
     resources:
-        mem_mb="int(16e3)",
+        mem_mb=int(16e3),
         runtime=10,
     container:
         bbmap
     shell:
-        "mkdir -p {output} && "
-        "samtools faidx {input} "
-        "--fai-idx {output.outdir}/index.txt && "
-        "cut -f1 {output.outdir}/index.txt > {output.outdir}/names.txt && "
+        "mkdir -p {output.outdir} && "
+        "samtools faidx {input} && "
+        "cut -f1 {input}.fai > {output.outdir}/names.txt && "
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
         "names={output.outdir}/names.txt "
         "in={input} "
