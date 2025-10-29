@@ -97,7 +97,7 @@ checkpoint demuxbyname:
         "logs/partition/{genome}.demux.log",
     threads: 1
     resources:
-        mem_mb="int(16e3)"
+        mem_mb="int(16e3)",
         runtime=10,
     container:
         bbmap
