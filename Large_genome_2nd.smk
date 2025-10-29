@@ -104,6 +104,7 @@ checkpoint demuxbyname:
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
         "in={input} "
         "out={output}/genome.20.shred.%.fa "
+        "names=auto"
         "2>{log}"
 
 
