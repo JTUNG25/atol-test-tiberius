@@ -24,7 +24,6 @@ def get_partition_chunks(wildcards):
     chunks = glob_wildcards(file_pattern).chunk
     return chunks
 
-
 # main
 
 
@@ -103,9 +102,9 @@ checkpoint partition_sequences:
         bbmap
     shell:
         "mkdir -p {output} && "
-        "partition.sh -Xmx{resources.mem_mb}m "
+        "reformat.sh -Xmx{resources.mem_mb}m "
         "in={input} "
-        "out={output}/genome.20.shred.%.fa "
+        "outm={output}/genome.20.shred.#.fa "
         "ways=0 " 
         "2>{log}"
 
