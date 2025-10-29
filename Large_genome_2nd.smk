@@ -23,7 +23,7 @@ def get_tiberius_output(wildcards):
     file_pattern = os.path.join(checkpoint_output, "{chunk}.fa")
     chunks = glob_wildcards(file_pattern).chunk
     return expand(
-        "results/tiberius/{genome}/{chunk}.gtf", chunk=chunk, genome=wildcards.genome"
+        "results/tiberius/{genome}/{chunk}.gtf, chunk=chunk, genome=wildcards.genome"
     )
 
 
