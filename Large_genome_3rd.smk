@@ -24,6 +24,7 @@ def get_partition_chunks(wildcards):
     chunks = glob_wildcards(file_pattern).chunk
     return chunks
 
+
 # main
 
 
@@ -92,6 +93,8 @@ checkpoint partition_sequences:
         "results/{genome}/partition/genome.20.shred.fa",
     output:
         directory("results/{genome}/partition/partition2/"),
+    params:
+        pattern="results/{genome}/partition/partition2/genome.20.shred.%.fa",
     log:
         "logs/partition/{genome}.partition2.log",
     threads: 1
@@ -102,10 +105,11 @@ checkpoint partition_sequences:
         bbmap
     shell:
         "mkdir -p {output} && "
-        "reformat.sh -Xmx{resources.mem_mb}m "
+        "No_Seqs=$(grep -c "^>" {input}) && "
+        "partition.sh -Xmx{resources.mem_mb}m "
         "in={input} "
-        "outm={output}/genome.20.shred.#.fa "
-        "ways=0 " 
+        "out={params.pattern} "
+        "ways=$No_Seqs "
         "2>{log}"
 
 
