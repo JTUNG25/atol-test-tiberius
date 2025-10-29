@@ -102,7 +102,6 @@ checkpoint demuxbyname:
     shell:
         "mkdir -p {output} && "
         "demuxbyname.sh -Xmx{resources.mem_mb}m "
-        "header=f "
         "in={input} "
         "out={output}/genome.20.shred.%.fa "
         "2>{log}"
