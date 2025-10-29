@@ -105,7 +105,7 @@ checkpoint partition_sequences:
         bbmap
     shell:
         "mkdir -p {output} && "
-        "No_Seqs=$(grep -c "^>" {input}) && "
+        "No_Seqs=$(grep -c \"^>\" {input}) && "
         "partition.sh -Xmx{resources.mem_mb}m "
         "in={input} "
         "out={params.pattern} "
