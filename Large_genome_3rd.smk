@@ -20,7 +20,7 @@ wildcard_constraints:
 def get_partition_chunks(wildcards):
     """Get all partition files after checkpoint completes"""
     checkpoint_output = checkpoints.partition_sequences.get(**wildcards).output[0]
-    file_pattern = os.path.join(checkpoint_output, "genome.3.shred.{chunk}.fa")
+    file_pattern = os.path.join(checkpoint_output, "genome.0.shred.{chunk}.fa")
     chunks = glob_wildcards(file_pattern).chunk
     return chunks
 
@@ -39,7 +39,7 @@ rule target:
 rule collect_results:
     input:
         lambda wildcards: expand(
-            "results/tiberius/{{genome}}.genome.3.shred.{chunk}.gtf",
+            "results/tiberius/{{genome}}.genome.0.shred.{chunk}.gtf",
             chunk=get_partition_chunks(wildcards),
         ),
     output:
@@ -53,10 +53,10 @@ rule collect_results:
 
 rule tiberius:
     input:
-        fasta="results/{genome}/partition/partition2/genome.3.shred.{chunk}.fa",
+        fasta="results/{genome}/partition/partition2/genome.0.shred.{chunk}.fa",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}.genome.3.shred.{chunk}.gtf",
+        gtf="results/tiberius/{genome}.genome.0.shred.{chunk}.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
@@ -90,11 +90,11 @@ rule tiberius:
 
 checkpoint partition_sequences:
     input:
-        "results/{genome}/partition/genome.3.shred.fa",
+        "results/{genome}/partition/genome.0.shred.fa",
     output:
         directory("results/{genome}/partition/partition2/"),
     params:
-        pattern="results/{genome}/partition/partition2/genome.3.shred.%.fa",
+        pattern="results/{genome}/partition/partition2/genome.0.shred.%.fa",
     log:
         "logs/partition/{genome}.partition2.log",
     threads: 1
@@ -115,9 +115,9 @@ checkpoint partition_sequences:
 
 rule shred:
     input:
-        "results/{genome}/partition/genome.3.fa",
+        "results/{genome}/partition/genome.0.fa",
     output:
-        "results/{genome}/partition/genome.3.shred.fa",
+        "results/{genome}/partition/genome.0.shred.fa",
     log:
         "logs/partition/{genome}.shred.log",
     threads: 1
