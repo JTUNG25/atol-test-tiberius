@@ -17,12 +17,16 @@ wildcard_constraints:
 
 
 # functions
-def get_partition_chunks(wildcards):
+def get_tiberius_output(wildcards):
     """Get all partition files after checkpoint completes"""
     checkpoint_output = checkpoints.partition_sequences.get(**wildcards).output[0]
     file_pattern = os.path.join(checkpoint_output, "genome.0.shred.{chunk}.fa")
     chunks = glob_wildcards(file_pattern).chunk
-    return chunks
+    return expand(
+        "results/tiberius/{genome}.genome.0.shred.{chunk}.gtf",
+        chunk=chunks,
+        genome=wildcards.genome,
+    )
 
 
 # main
@@ -38,10 +42,7 @@ rule target:
 
 rule collect_results:
     input:
-        lambda wildcards: expand(
-            "results/tiberius/{{genome}}.genome.0.shred.{chunk}.gtf",
-            chunk=get_partition_chunks(wildcards),
-        ),
+        get_tiberius_output,
     output:
         "results/{genome}/all_done.txt",
     resources:
