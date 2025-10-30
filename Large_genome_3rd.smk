@@ -42,7 +42,8 @@ rule target:
 
 rule collect_results:
     input:
-        get_tiberius_output,
+        checkpoint_dir=rules.partition_sequences.output[0],
+        gtfs=get_tiberius_output,
     output:
         "results/{genome}/all_done.txt",
     resources:
