@@ -32,8 +32,6 @@ rule compress_tiberius_output:
     resources:
         mem="4G",
         runtime=20,
-        gpu=1,
-        partitionFlag="--partition=gpu-h100",
     log:
         "logs/tiberius/compressed_results/{genome}.log",
     container:
