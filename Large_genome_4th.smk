@@ -15,7 +15,7 @@ input_genomes = [
     "N_forsteri",
 ]
 
-input_sequences = [str(i) for i in [*range(1, 20), 21, 22]]
+input_sequences = [str(i) for i in [*range(1, 20), 21, 22, 45]]
 
 
 wildcard_constraints:
