@@ -15,7 +15,7 @@ input_genomes = [
     "N_forsteri",
 ]
 
-input_sequences = [str(i) for i in [*range(1, 20), 21, 22, 45]]
+input_sequences = [str(i) for i in [20]]
 
 
 wildcard_constraints:
@@ -35,8 +35,18 @@ def get_tiberius_output(wildcards):
         checkpoint_output = checkpoints.partition_sequences.get(
             genome=wildcards.genome, sequence=seq
         ).output[0]
+        
         file_pattern = os.path.join(checkpoint_output, f"genome.{seq}.shred.{{chunk}}.fa")
         chunks = glob_wildcards(file_pattern).chunk
+    
+    # error handling
+    if not chunks:
+        print(f"Warning: No chunks found for {seq} in {checkpoint_output}")
+        print(f"Looking for pattern: {file_pattern}")
+        # List what's actually there
+        if os.path.exists(checkpoint_output):
+            print(f"Files in directory: {os.listdir(checkpoint_output)}")
+        
         gtf_gzs = expand(
             "results/tiberius/{genome}.genome.{sequence}.shred.{chunk}.gtf.gz",
             chunk=chunks,
@@ -97,7 +107,7 @@ rule tiberius:
         #seq_len=259992,
         batch_size=8,
     resources:
-        mem="128G",
+        mem="100G",
         runtime=240,
         gpu=1,
         partitionFlag="--partition=gpu-a100-short",
@@ -136,7 +146,7 @@ checkpoint partition_sequences:
     threads: 1
     resources:
         runtime=10,
-        mem_mb=int(16e3),
+        mem_mb=int(32e3),
     container:
         bbmap
     shell:
@@ -159,7 +169,7 @@ rule shred:
     threads: 1
     resources:
         runtime=10,
-        mem_mb=int(16e3),
+        mem_mb=int(32e3),
     container:
         bbmap
     shell:
