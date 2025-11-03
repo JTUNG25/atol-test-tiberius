@@ -39,13 +39,13 @@ def get_tiberius_output(wildcards):
         file_pattern = os.path.join(checkpoint_output, f"genome.{seq}.shred.{{chunk}}.fa")
         chunks = glob_wildcards(file_pattern).chunk
     
-    # error handling
-    if not chunks:
-        print(f"Warning: No chunks found for {seq} in {checkpoint_output}")
-        print(f"Looking for pattern: {file_pattern}")
-        # List what's actually there
-        if os.path.exists(checkpoint_output):
-            print(f"Files in directory: {os.listdir(checkpoint_output)}")
+        # error handling
+        if not chunks:
+            print(f"Warning: No chunks found for {seq} in {checkpoint_output}")
+            print(f"Looking for pattern: {file_pattern}")
+            # List what's actually there
+            if os.path.exists(checkpoint_output):
+                print(f"Files in directory: {os.listdir(checkpoint_output)}")
         
         gtf_gzs = expand(
             "results/tiberius/{genome}.genome.{sequence}.shred.{chunk}.gtf.gz",
