@@ -36,6 +36,6 @@ rule agat:
         agat
     shell:
         "agat_sp_statistics.pl "
-        "--input {input.gtf} "
+        "--gff {input.gtf} "
         "--output {output.txt} "
         "&> {log}"
