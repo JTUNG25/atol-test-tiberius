@@ -107,10 +107,10 @@ rule tiberius:
         #seq_len=259992,
         batch_size=8,
     resources:
-        mem="100G",
-        runtime=240,
+        mem="256G",
+        runtime=180,
         gpu=1,
-        partitionFlag="--partition=gpu-a100-short",
+        partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
         "logs/tiberius/{genome}.{sequence}.{chunk}.log",
