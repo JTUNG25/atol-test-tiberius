@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
+def get_busco_db(wildcards):
+    """Get the appropriate BUSCO database for each genome"""
+    return f"data/busco_db/db/{genome_config[wildcards.genome]['busco_db']}"
+
+
+def get_lineage_name(wildcards):
+    """Get the lineage name for the JSON filename"""
+    return genome_config[wildcards.genome]["busco_db"]
+
 
 # containers
-agat = "docker:ezlabgva/busco:v6.0.0_cv1"
+busco = "docker://ezlabgva/busco:v6.0.0_cv1"
 
 # config
 input_genomes = [
@@ -24,31 +33,36 @@ genome_config = {
     "N_forsteri.8": {"busco_db": "vertebrata_odb10"},
 }
 
-#db_path = "data/funannotate_db"
+# db_path = "data/funannotate_db"
 
 
 rule target:
     input:
-        expand("results/tiberius/busco/{genome}.json", genome=input_genomes),
+        expand("results/tiberius/busco/{genome}/{genome}.json", genome=input_genomes),
 
 
-rule agat:
+rule busco:
     input:
         gtf="results/tiberius/{genome}.gtf",
     output:
-        json="results/tiberius/busco/{genome}.json",
+        json="results/tiberius/busco/{genome}/{genome}.json",
     params:
-        busco_db="data/busco_db/db/vertebrata_odb10"
+        busco_db=get_busco_db,
+        lineage=get_lineage_name,
+        outdir="results/tiberius/busco/{genome}",
     resources:
         mem="32G",
         runtime=60,
     log:
         "logs/busco/{genome}.log",
     container:
-        agat
+        busco
     shell:
-        "--i {input.gtf} "
-        "--o {output.json} "
-        "--lineage_dataset {params.busco_db} "
-        "--mode protein "
-        "&> {log}"
+        "busco "
+        "-i {input.gtf} "
+        "-o {params.outdir} "
+        "-l {params.busco_db} "
+        "-m protein "
+        "--force "
+        "&> {log}; "
+        "cp {params.outdir}/short_summary.specific.{params.lineage}.{wildcards.genome}.json {output.json}"
