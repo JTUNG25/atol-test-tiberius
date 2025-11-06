@@ -21,7 +21,7 @@ genome_config = {
     "P_halo": {"busco_db": "actinopterygii_odb10"},
     "N_erebi": {"busco_db": "actinopterygii_odb10"},
     "N_cryptoides": {"busco_db": "hymenoptera_odb10"},
-    "N_forsteri.8": {"busco_db: "vertebrata_odb10"},
+    "N_forsteri.8": {"busco_db": "vertebrata_odb10"},
 }
 
 #db_path = "data/funannotate_db"
