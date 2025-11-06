@@ -35,7 +35,6 @@ rule target:
 rule agat:
     input:
         gtf="results/tiberius/{genome}.gtf",
-        db=db_path
     output:
         json="results/tiberius/busco/{genome}.json",
     params:
