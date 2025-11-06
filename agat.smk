@@ -23,11 +23,12 @@ rule target:
     input:
         expand("results/tiberius/agat/{genome}.yaml", genome=input_genomes),
 
+
 rule agat:
     input:
         gtf="results/tiberius/{genome}.gtf",
     output:
-        txt="results/tiberius/agat/{genome}.yaml",
+        yaml="results/tiberius/agat/{genome}.yaml",
     resources:
         mem="32G",
         runtime=60,
@@ -39,5 +40,5 @@ rule agat:
         "agat_sp_statistics.pl "
         "--yaml "
         "--gff {input.gtf} "
-        "--output {output.txt} "
+        "--output {output.yaml} "
         "&> {log}"
