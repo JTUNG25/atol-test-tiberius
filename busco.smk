@@ -29,7 +29,7 @@ genome_config = {
 
 rule target:
     input:
-        expand("results/tiberius/busco/{genome}.", genome=input_genomes),
+        expand("results/tiberius/busco/{genome}.json", genome=input_genomes),
 
 
 rule agat:
