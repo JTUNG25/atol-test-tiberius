@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 def get_busco_db(wildcards):
-    """Get the appropriate BUSCO database for each genome"""
+    """Get the BUSCO database for each genome"""
     return f"data/busco_db/db/{genome_config[wildcards.genome]['busco_db']}"
 
 
@@ -17,22 +17,31 @@ agat = "docker://quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0"
 # config
 input_genomes = [
     "R_gram",
+    "A_magna",
+    "E_pictum",
+    "X_john",
+    "T_triandra",
+    "H_bino",
+    "P_vit",
+    "P_halo",
+    "N_erebi",
+    "N_cryptoides",
 ]
 
 genome_config = {
-    "A_magna": {"busco_db": "eukaryota_odb10"},
-    "E_pictum": {"busco_db": "eukaryota_odb10"},
+    "A_magna": {"busco_db": "passeriformes_odb10"},
+    "E_pictum": {"busco_db": "passeriformes_odb10"},
     "R_gram": {
         "busco_db": "helotiales_odb10",
     },
     "X_john": {"busco_db": "liliopsida_odb10"},
     "T_triandra": {"busco_db": "poales_odb10"},
-    "H_bino": {"busco_db": "eukaryota_odb10"},
-    "P_vit": {"busco_db": "eukaryota_odb10"},
+    "H_bino": {"busco_db": "sauropsida_odb10"},
+    "P_vit": {"busco_db": "sauropsida_odb10"},
     "P_halo": {"busco_db": "actinopterygii_odb10"},
     "N_erebi": {"busco_db": "actinopterygii_odb10"},
     "N_cryptoides": {"busco_db": "hymenoptera_odb10"},
-    "N_forsteri.8": {"busco_db": "vertebrata_odb10"},
+    "N_forsteri": {"busco_db": "vertebrata_odb10"},
 }
 
 
@@ -52,7 +61,7 @@ rule busco:
         outdir="results/tiberius/busco/{genome}",
     resources:
         mem="32G",
-        runtime=60,
+        runtime=180,
     log:
         "logs/busco/{genome}.log",
     container:
