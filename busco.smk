@@ -74,6 +74,9 @@ rule extract_proteins:
         genome="data/genomes/{genome}.fasta",
     output:
         protein="results/tiberius/proteins/{genome}.faa",
+    resources:
+        mem="32G",
+        runtime=60,
     log:
         "logs/agat_extract/{genome}.log",
     container:
