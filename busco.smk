@@ -11,10 +11,12 @@ def get_lineage_name(wildcards):
 
 # containers
 busco = "docker://ezlabgva/busco:v6.0.0_cv1"
+agat = "docker://quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0"
+
 
 # config
 input_genomes = [
-    "N_forsteri.8",
+    "R_gram",
 ]
 
 genome_config = {
@@ -33,8 +35,6 @@ genome_config = {
     "N_forsteri.8": {"busco_db": "vertebrata_odb10"},
 }
 
-# db_path = "data/funannotate_db"
-
 
 rule target:
     input:
@@ -43,7 +43,7 @@ rule target:
 
 rule busco:
     input:
-        gtf="results/tiberius/{genome}.gtf",
+        protein="results/tiberius/proteins/{genome}.faa",
     output:
         json="results/tiberius/busco/{genome}/{genome}.json",
     params:
@@ -59,10 +59,29 @@ rule busco:
         busco
     shell:
         "busco "
-        "-i {input.gtf} "
+        "-i {input.protein} "
         "-o {params.outdir} "
         "-l {params.busco_db} "
         "-m protein "
         "--force "
         "&> {log}; "
         "cp {params.outdir}/short_summary.specific.{params.lineage}.{wildcards.genome}.json {output.json}"
+
+
+rule extract_proteins:
+    input:
+        gtf="results/tiberius/{genome}.gtf",
+        genome="data/genomes/{genome}.fasta",
+    output:
+        protein="results/tiberius/proteins/{genome}.faa",
+    log:
+        "logs/agat_extract/{genome}.log",
+    container:
+        agat
+    shell:
+        "agat_sp_extract_sequences.pl "
+        "--gff {input.gtf} "
+        "--fasta {input.genome} "
+        "--protein "
+        "--output {output.protein} "
+        "&> {log}"
