@@ -40,5 +40,5 @@ rule agat:
         "agat_sp_statistics.pl "
         "--yaml "
         "--gff {input.gtf} "
-        "--output {output.yaml} "
+        "--output results/tiberius/agat/{wildcards.genome} "
         "&> {log}"
