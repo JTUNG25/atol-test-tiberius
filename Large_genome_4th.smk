@@ -174,7 +174,7 @@ rule shred:
         bbmap
     shell:
         "shred.sh -Xmx{resources.mem_mb}m "
-        "length=600000000 "
+        "length=550000000 "
         "overlap=1000000 "
         "equal=f "
         "in={input} "
