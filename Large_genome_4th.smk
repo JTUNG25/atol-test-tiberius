@@ -15,7 +15,7 @@ input_genomes = [
     "N_forsteri",
 ]
 
-input_sequences = [str(i) for i in [20]]
+input_sequences = [str(i) for i in [22]]
 
 
 wildcard_constraints:
@@ -174,7 +174,7 @@ rule shred:
         bbmap
     shell:
         "shred.sh -Xmx{resources.mem_mb}m "
-        "length=500000000 "
+        "length=600000000 "
         "overlap=1000000 "
         "equal=f "
         "in={input} "
