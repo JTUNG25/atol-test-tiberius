@@ -4,11 +4,11 @@ import glob
 import os
 
 # containers
-tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
+tiberius = "docker://larsgabriel23/tiberius:1.1.7"  # new container
 bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for bp=t
 # config
 input_genomes = [
-    "N_forsteri",
+    "chr1_1",
 ]
 
 
@@ -16,57 +16,47 @@ wildcard_constraints:
     genome="|".join(input_genomes),
 
 
-# functions
-def get_tiberius_output(wildcards):
-    """Get all demuxed files after checkpoint completes"""
-    checkpoint_output = checkpoints.demuxbyname.get(**wildcards).output[outdir]
-    file_pattern = os.path.join(checkpoint_output, "{chunk}.fa")
-    chunks = glob_wildcards(file_pattern).chunk
-    return expand(
-        "results/tiberius/{genome}/{chunk}.gtf", chunk=chunks, genome=wildcards.genome
-    )
-
-
 # main
 
 
 rule target:
     input:
-        expand(
-            "results/tiberius/{genome}/partition/all_done.txt",
-            genome=input_genomes,
-        ),
+        expand("results/tiberius/{genome}.gtf.gz", genome=input_genomes),
 
 
-rule collect_results:
+rule compress_tiberius_output:
     input:
-        get_tiberius_output,
+        gtf="results/tiberius/{genome}.gtf",
     output:
-        "results/tiberius/{genome}/partition/all_done.txt",
+        gtf_gz="results/tiberius/{genome}.gtf.gz",
     resources:
-        mem="8G",
-        runtime=10,
+        mem="4G",
+        runtime=20,
+    log:
+        "logs/tiberius/compressed_results/{genome}.log",
+    container:
+        tiberius
     shell:
-        "touch {output}"
+        "gzip -k {input.gtf}"
 
 
 rule tiberius:
     input:
-        fasta="results/{genome}/partition/demux/{chunk}.fa",
+        fasta="results/{genome}/reformat/genome.fa",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}/{chunk}.gtf",
+        gtf="results/tiberius/{genome}.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
     resources:
-        mem="360G",
-        runtime=240,
+        mem="256G",
+        runtime=180,
         gpu=1,
         partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
-        "logs/tiberius/{genome}.{chunk}.log",
+        "logs/tiberius/{genome}.log",
     container:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
@@ -87,47 +77,19 @@ rule tiberius:
         "&> {log}"
 
 
-checkpoint demuxbyname:
+rule reformat:
     input:
-        "results/{genome}/partition/genome.20.shred.fa",
+        "data/genomes/{genome}.fna",
     output:
-        outdir=directory("results/{genome}/partition/demux"),
+        temp("results/{genome}/reformat/genome.fa"),
     log:
-        "logs/partition/{genome}.demux.log",
-    threads: 1
-    resources:
-        mem_mb=int(16e3),
-        runtime=10,
-    container:
-        bbmap
-    shell:
-        "mkdir -p {output.outdir} && "
-        "samtools faidx {input} && "
-        "cut -f1 {input}.fai > {output.outdir}/names.txt && "
-        "demuxbyname.sh -Xmx{resources.mem_mb}m "
-        "names={output.outdir}/names.txt "
-        "in={input} "
-        "out={output.outdir}/%.fa "
-        "2>{log}"
-
-
-rule shred:
-    input:
-        "results/{genome}/partition/genome.20.fa",
-    output:
-        "results/{genome}/partition/genome.20.shred.fa",
-    log:
-        "logs/partition/{genome}.shred.log",
+        "logs/reformat/{genome}.log",
     threads: 1
     resources:
         runtime=10,
-        mem_mb=int(16e3),
+        mem_mb=int(32e3),
     container:
         bbmap
     shell:
-        "shred.sh -Xmx{resources.mem_mb}m "
-        "length=500000000 "
-        "overlap=1000000 "
-        "equal=f "
-        "in={input} "
-        "out={output} 2>{log}"
+        "reformat.sh -Xmx{resources.mem_mb}m "
+        "in={input} out={output} 2>{log}"

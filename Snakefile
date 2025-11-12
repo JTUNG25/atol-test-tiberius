@@ -53,7 +53,7 @@ rule tiberius:
         mem="512G",
         runtime=240,
         gpu=1,
-        partitionFlag="--partition=gpu-h100",
+        partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
         "logs/tiberius/{genome}.log",
