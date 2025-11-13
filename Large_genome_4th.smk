@@ -165,7 +165,7 @@ rule shred:
     output:
         "results/{genome}/partition/genome.{sequence}.shred.fa",
     log:
-        "logs/partition/{genome}.{sequence}.shred.log",
+        "logs/",
     threads: 1
     resources:
         runtime=10,
