@@ -30,8 +30,8 @@ def get_tiberius_output(wildcards):
         contig=wildcards.contig
         ).output[0]
 
-        file_pattern = os.path.join(checkpoint_output, f"contig.shred.*.fa")
-        chunks = glob.glob(file_pattern)
+    file_pattern = os.path.join(checkpoint_output, f"contig.shred.*.fa")
+    chunks = glob.glob(file_pattern)
 
 # Extract chunk numbers from filenames
     chunk_list = []
