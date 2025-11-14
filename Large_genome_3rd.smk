@@ -30,20 +30,11 @@ def get_tiberius_output(wildcards):
         0
     ]
 
-    file_pattern = os.path.join(checkpoint_output, f"contig.shred.*.fa")
-    chunks = glob.glob(file_pattern)
-
-
-    # Extract chunk numbers from filenames  
-    chunk_list = []
-    for f in chunks:
-    # Extract number from contig.shred.N.fa
-        basename = os.path.basename(f)
-        chunk_num = basename.replace("contig.shred.", "").replace(".fa", "")
-        chunk_list.append(chunk_num)
+    file_pattern = os.path.join(checkpoint_output, f"contig.shred.{{chunk}}.fa")
+    chunks = glob_wildcards(file_pattern).chunk
 
     # error handling
-    if not chunk_list:
+    if not chunks:
         print(f"Looking for pattern: {file_pattern}")
         # List what's actually there
         if os.path.exists(checkpoint_output):
@@ -51,7 +42,7 @@ def get_tiberius_output(wildcards):
 
     gtf_gzs = expand(
         "results/tiberius/{contig}.contig.shred.{chunk}.gtf.gz",
-        chunk=chunk_list,
+        chunk=chunks,
         contig=wildcards.contig,
     )
     all_gtf_gzs.extend(gtf_gzs)
@@ -162,7 +153,7 @@ checkpoint partition_sequences:
 
 rule shred:
     input:
-        "results/{contig}/reformat/genome.fa",
+        "results/{contig}/reformat/contig.fa",
     output:
         "results/{contig}/reformat/contig.shred.fa",
     log:
@@ -180,3 +171,20 @@ rule shred:
         "equal=f "
         "in={input} "
         "out={output} 2>{log}"
+
+rule reformat:
+    input:
+        "data/genomes/{contig}.fna",
+    output:
+        temp("results/{contig}/reformat/contig.fa"),
+    log:
+        "logs/reformat/{contig}.log",
+    threads: 1
+    resources:
+        runtime=10,
+        mem_mb=int(32e3),
+    container:
+        bbmap
+    shell:
+        "reformat.sh -Xmx{resources.mem_mb}m "
+        "in={input} out={output} 2>{log}"
