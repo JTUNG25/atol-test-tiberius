@@ -100,7 +100,7 @@ rule compress_tiberius_output:
 
 rule tiberius:
     input:
-        fasta="results/{contig}/partition/partition2/contig.shred.{chunk}.fa",
+        fasta="results/{contig}/reformat/partition/contig.shred.{chunk}.fa",
         model="data/tiberius_weights_v2",
     output:
         gtf="results/tiberius/{contig}.contig.shred.{chunk}.gtf",
@@ -137,13 +137,13 @@ rule tiberius:
 
 checkpoint partition_sequences:
     input:
-        "results/{contig}/partition/contig.shred.fa",
+        "results/{contig}/reformat/contig.shred.fa",
     output:
-        directory("results/{contig}/partition/partition2/"),
+        directory("results/{contig}/reformat/partition/"),
     params:
-        pattern="results/{contig}/partition/partition2/contig.shred.%.fa",
+        pattern="results/{contig}/reformat/partition/contig.shred.%.fa",
     log:
-        "logs/partition/{contig}.partition2.log",
+        "logs/partition/{contig}.partition.log",
     threads: 1
     resources:
         runtime=10,
@@ -164,7 +164,7 @@ rule shred:
     input:
         "results/{contig}/reformat/genome.fa",
     output:
-        "results/{contig}/partition/contig.shred.fa",
+        "results/{contig}/reformat/genome.shred.fa",
     log:
         "logs/partition/{contig}.shred.log",
     threads: 1
