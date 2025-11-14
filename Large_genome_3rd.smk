@@ -26,17 +26,18 @@ def get_tiberius_output(wildcards):
     """Get all partition files for ALL sequences after checkpoint completes"""
     all_gtf_gzs = []
 
-    checkpoint_output = checkpoints.partition_sequences.get(
-        contig=wildcards.contig
-        ).output[0]
+    checkpoint_output = checkpoints.partition_sequences.get(contig=wildcards.contig).output[
+        0
+    ]
 
     file_pattern = os.path.join(checkpoint_output, f"contig.shred.*.fa")
     chunks = glob.glob(file_pattern)
 
-# Extract chunk numbers from filenames
+
+    # Extract chunk numbers from filenames  
     chunk_list = []
     for f in chunks:
-        # Extract number from contig.shred.N.fa
+    # Extract number from contig.shred.N.fa
         basename = os.path.basename(f)
         chunk_num = basename.replace("contig.shred.", "").replace(".fa", "")
         chunk_list.append(chunk_num)
@@ -53,7 +54,7 @@ def get_tiberius_output(wildcards):
         chunk=chunk_list,
         contig=wildcards.contig,
     )
-        all_gtf_gzs.extend(gtf_gzs)
+    all_gtf_gzs.extend(gtf_gzs)
 
     return all_gtf_gzs
 
