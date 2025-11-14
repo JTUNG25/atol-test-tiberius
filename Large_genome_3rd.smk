@@ -187,4 +187,6 @@ rule reformat:
         bbmap
     shell:
         "reformat.sh -Xmx{resources.mem_mb}m "
-        "in={input} out={output} 2>{log}"
+        "in={input} out={output} "
+        "addunderscore=t "
+        "2>{log}"
