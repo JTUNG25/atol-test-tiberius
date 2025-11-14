@@ -4,52 +4,78 @@ import glob
 import os
 
 # containers
+
 tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
 bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for bp=t
-# config
-input_genomes = [
-    "N_forsteri",
-]
 
-input_sequences = [str(i) for i in [*range(0, 20), 21, 22]]
+input_contigs = [
+    "chr1_1",
+]
 
 
 wildcard_constraints:
-    genome="|".join(input_genomes),
-    sequence="|".join(input_sequences),
+    contig="|".join(input_contigs),
 
 
-# functions
+#############
+# FUNCTIONS #
+#############
+
+
 def get_tiberius_output(wildcards):
     """Get all partition files for ALL sequences after checkpoint completes"""
-    checkpoint_output = checkpoints.partition_sequences.get(**wildcards).output[0]
-    file_pattern = os.path.join(checkpoint_output, "genome.{sequence}.shred.{chunk}.fa")
-    chunks = glob_wildcards(file_pattern).chunk
-    return expand(
-        "results/tiberius/{genome}.genome.{sequence}.shred.{chunk}.gtf",
-        chunk=chunks,
-        sequence=wildcards.sequence,
-        genome=wildcards.genome,
+    all_gtf_gzs = []
+
+    checkpoint_output = checkpoints.partition_sequences.get(
+        contig=wildcards.contig
+        ).output[0]
+
+        file_pattern = os.path.join(checkpoint_output, f"contig.shred.*.fa")
+        chunks = glob.glob(file_pattern)
+
+# Extract chunk numbers from filenames
+    chunk_list = []
+    for f in chunks:
+        # Extract number from contig.shred.N.fa
+        basename = os.path.basename(f)
+        chunk_num = basename.replace("contig.shred.", "").replace(".fa", "")
+        chunk_list.append(chunk_num)
+
+    # error handling
+    if not chunk_list:
+        print(f"Looking for pattern: {file_pattern}")
+        # List what's actually there
+        if os.path.exists(checkpoint_output):
+            print(f"Files in directory: {os.listdir(checkpoint_output)}")
+
+    gtf_gzs = expand(
+        "results/tiberius/{contig}.contig.shred.{chunk}.gtf.gz",
+        chunk=chunk_list,
+        contig=wildcards.contig,
     )
+        all_gtf_gzs.extend(gtf_gzs)
+
+    return all_gtf_gzs
 
 
-# main
+##############
+# MAIN RULES #
+##############
 
 
 rule target:
     input:
         expand(
-            "results/{genome}/all_done.txt",
-            genome=input_genomes,
+            "results/{contig}/all_done.txt",
+            contig=input_contigs,
         ),
 
 
 rule collect_results:
     input:
-        checkpoint_dir="results/{genome}/partition/partition2/",
-        gtfs=get_tiberius_output,
+        all_gtf_gzs=get_tiberius_output,
     output:
-        "results/{genome}/all_done.txt",
+        "results/{contig}/all_done.txt",
     resources:
         mem="8G",
         runtime=10,
@@ -57,23 +83,37 @@ rule collect_results:
         "touch {output}"
 
 
+rule compress_tiberius_output:
+    input:
+        gtf="results/tiberius/{contig}.contig.shred.{chunk}.gtf",
+    output:
+        gtf_gz="results/tiberius/{contig}.contig.shred.{chunk}.gtf.gz",
+    resources:
+        mem="4G",
+        runtime=10,
+    log:
+        "logs/tiberius/compressed_results/{contig}.{chunk}.log",
+    shell:
+        "gzip -c {input.gtf} > {output.gtf_gz} 2> {log}"
+
+
 rule tiberius:
     input:
-        fasta="results/{genome}/partition/partition2/genome.{sequence}.shred.{chunk}.fa",
+        fasta="results/{contig}/partition/partition2/contig.shred.{chunk}.fa",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}.genome.{sequence}.shred.{chunk}.gtf",
+        gtf="results/tiberius/{contig}.contig.shred.{chunk}.gtf",
     params:
         #seq_len=259992,
         batch_size=8,
     resources:
-        mem="128G",
-        runtime=240,
+        mem="256G",
+        runtime=180,
         gpu=1,
         partitionFlag="--partition=gpu-a100",
         exclusive="--exclusive",
     log:
-        "logs/tiberius/{genome}.{chunk}.log",
+        "logs/tiberius/{contig}.{chunk}.log",
     container:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
@@ -96,17 +136,17 @@ rule tiberius:
 
 checkpoint partition_sequences:
     input:
-        "results/{genome}/partition/genome.{sequence}.shred.fa",
+        "results/{contig}/partition/contig.shred.fa",
     output:
-        directory("results/{genome}/partition/partition2/"),
+        directory("results/{contig}/partition/partition2/"),
     params:
-        pattern="results/{genome}/partition/partition2/genome.{sequence}.shred.%.fa",
+        pattern="results/{contig}/partition/partition2/contig.shred.%.fa",
     log:
-        "logs/partition/{genome}.partition2.log",
+        "logs/partition/{contig}.partition2.log",
     threads: 1
     resources:
         runtime=10,
-        mem_mb=int(16e3),
+        mem_mb=int(32e3),
     container:
         bbmap
     shell:
@@ -121,11 +161,11 @@ checkpoint partition_sequences:
 
 rule shred:
     input:
-        "results/{genome}/partition/genome.{sequence}.fa",
+        "results/{contig}/reformat/genome.fa",
     output:
-        "results/{genome}/partition/genome.{sequence}.shred.fa",
+        "results/{contig}/partition/contig.shred.fa",
     log:
-        "logs/partition/{genome}.shred.log",
+        "logs/partition/{contig}.shred.log",
     threads: 1
     resources:
         runtime=10,
@@ -134,7 +174,7 @@ rule shred:
         bbmap
     shell:
         "shred.sh -Xmx{resources.mem_mb}m "
-        "length=500000000 "
+        "length=550000000 "
         "overlap=1000000 "
         "equal=f "
         "in={input} "
