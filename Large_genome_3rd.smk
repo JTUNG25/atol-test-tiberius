@@ -30,7 +30,7 @@ def get_tiberius_output(wildcards):
         0
     ]
 
-    file_pattern = os.path.join(checkpoint_output, f"contig.shred.{{chunk}}.fa")
+    file_pattern = os.path.join(checkpoint_output, f"contig.shred.{{chunk}}.fna")
     chunks = glob_wildcards(file_pattern).chunk
 
     # error handling
