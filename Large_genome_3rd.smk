@@ -91,7 +91,7 @@ rule compress_tiberius_output:
 
 rule tiberius:
     input:
-        fasta="results/{contig}/reformat/partition/contig.shred.{chunk}.fa",
+        fna="results/{contig}/reformat/partition/contig.shred.{chunk}.fna",
         model="data/tiberius_weights_v2",
     output:
         gtf="results/tiberius/{contig}.contig.shred.{chunk}.gtf",
@@ -119,7 +119,7 @@ rule tiberius:
         # needs to be checked for the dev container.
         "nvidia-smi && "
         "tiberius.py "
-        "--genome {input.fasta} "
+        "--genome {input.fna} "
         "--model {input.model} "
         "--out {output.gtf} "
         "--batch_size {params.batch_size} "
@@ -128,11 +128,11 @@ rule tiberius:
 
 checkpoint partition_sequences:
     input:
-        "results/{contig}/reformat/contig.shred.fa",
+        "results/{contig}/reformat/contig.shred.fna",
     output:
         directory("results/{contig}/reformat/partition/"),
     params:
-        pattern="results/{contig}/reformat/partition/contig.shred.%.fa",
+        pattern="results/{contig}/reformat/partition/contig.shred.%.fna",
     log:
         "logs/partition/{contig}.partition.log",
     threads: 1
@@ -153,9 +153,9 @@ checkpoint partition_sequences:
 
 rule shred:
     input:
-        "results/{contig}/reformat/contig.fa",
+        "results/{contig}/reformat/contig.fna",
     output:
-        "results/{contig}/reformat/contig.shred.fa",
+        "results/{contig}/reformat/contig.shred.fna",
     log:
         "logs/partition/{contig}.shred.log",
     threads: 1
@@ -176,7 +176,7 @@ rule reformat:
     input:
         "data/genomes/{contig}.fna",
     output:
-        temp("results/{contig}/reformat/contig.fa"),
+        temp("results/{contig}/reformat/contig.fna"),
     log:
         "logs/reformat/{contig}.log",
     threads: 1
