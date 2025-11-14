@@ -164,7 +164,7 @@ rule shred:
     input:
         "results/{contig}/reformat/genome.fa",
     output:
-        "results/{contig}/reformat/genome.shred.fa",
+        "results/{contig}/reformat/contig.shred.fa",
     log:
         "logs/partition/{contig}.shred.log",
     threads: 1
