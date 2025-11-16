@@ -4,8 +4,7 @@ import glob
 import os
 
 # containers
-tiberius = "docker://larsgabriel23/tiberius@sha256:9b79ab0b741b9f0fd5d68fee4a38218ef4a998b5f9180269eef05558dd841a58" # The same as tiberius:1.1.7
-# "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3" # Nov 2025 updated container
+tiberius = "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3"  # Nov 2025 updated container
 # "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
 # "docker://larsgabriel23/tiberius:1.1.7"  # newer container
 
@@ -54,10 +53,10 @@ rule tiberius:
         #seq_len=259992,
         batch_size=8,
     resources:
-        mem="256G",
+        mem="512G",
         runtime=180,
         gpu=1,
-        partitionFlag="--partition=gpu-a100",
+        partitionFlag="--partition=gpu-h100",
         exclusive="--exclusive",
     log:
         "logs/tiberius/{genome}.log",
