@@ -5,18 +5,18 @@ import os
 
 # containers
 tiberius = "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3"  # Nov 2025 updated container
-# "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
+# "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3" # Can't handle contig > 550Mbp
 # "docker://larsgabriel23/tiberius:1.1.7"  # newer container
 
 bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for bp=t
 # config
-input_genomes = [
+input_contigs = [
     "chr1_1",
 ]
 
 
 wildcard_constraints:
-    genome="|".join(input_genomes),
+    contig="|".join(input_contigs),
 
 
 # main
@@ -24,19 +24,19 @@ wildcard_constraints:
 
 rule target:
     input:
-        expand("results/tiberius/{genome}.gtf.gz", genome=input_genomes),
+        expand("results/tiberius/{contig}.gtf.gz", contig=input_contigs),
 
 
 rule compress_tiberius_output:
     input:
-        gtf="results/tiberius/{genome}.gtf",
+        gtf="results/tiberius/{contig}.gtf",
     output:
-        gtf_gz="results/tiberius/{genome}.gtf.gz",
+        gtf_gz="results/tiberius/{contig}.gtf.gz",
     resources:
         mem="4G",
         runtime=20,
     log:
-        "logs/tiberius/compressed_results/{genome}.log",
+        "logs/tiberius/compressed_results/{contig}.log",
     container:
         tiberius
     shell:
@@ -45,13 +45,13 @@ rule compress_tiberius_output:
 
 rule tiberius:
     input:
-        fasta="results/{genome}/reformat/genome.fna",
+        fasta="results/{contig}/reformat/contig.fna",
         model="data/tiberius_weights_v2",
     output:
-        gtf="results/tiberius/{genome}.gtf",
+        gtf="results/tiberius/{contig}.gtf",
     params:
         #seq_len=259992,
-        batch_size=8,
+        batch_size=16,
     resources:
         mem="512G",
         runtime=180,
@@ -59,7 +59,7 @@ rule tiberius:
         partitionFlag="--partition=gpu-h100",
         exclusive="--exclusive",
     log:
-        "logs/tiberius/{genome}.log",
+        "logs/tiberius/{contig}.log",
     container:
         # "docker://quay.io/biocontainers/tiberius:1.1.6--pyhdfd78af_0" FIXME.
         # The biocontainer tensorflow doesn't work, but the dev container
@@ -77,16 +77,17 @@ rule tiberius:
         "--model {input.model} "
         "--out {output.gtf} "
         "--batch_size {params.batch_size} "
+        "--keep-incomplete "
         "&> {log}"
 
 
 rule reformat:
     input:
-        "data/genomes/{genome}.fna",
+        "data/genomes/{contig}.fna",
     output:
-        temp("results/{genome}/reformat/genome.fna"),
+        temp("results/{contig}/reformat/contig.fna"),
     log:
-        "logs/reformat/{genome}.log",
+        "logs/reformat/{contig}.log",
     threads: 1
     resources:
         runtime=10,
