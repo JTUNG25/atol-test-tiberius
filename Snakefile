@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # containers
-tiberius = "docker://larsgabriel23/tiberius@sha256:796a9de5fdef73dd9148360dd22af0858c2fe8f0adc45ecaeda925ea4d4105d3"
+tiberius = "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3"  # Nov 2025 updated container
 bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for bp=t
 # config
 input_genomes = [
@@ -75,7 +75,23 @@ rule tiberius:
         "--genome {input.fasta} "
         "--model {input.model} "
         "--out {output.gtf} "
-
         "--batch_size {params.batch_size} "
         "&> {log}"
         #"--seq_len {params.seq_len} "
+
+rule reformat:
+    input:
+        "data/genomes/{genome}.fasta",
+    output:
+        temp("results/{genome}/reformat/genome.fa"),
+    log:
+        "logs/reformat/{genome}.log",
+    threads: 1
+    resources:
+        runtime=10,
+        mem_mb=int(32e3),
+    container:
+        bbmap
+    shell:
+        "reformat.sh -Xmx{resources.mem_mb}m "
+        "in={input} out={output} 2>{log}"
