@@ -48,13 +48,15 @@ rule tiberius:
         gtf="results/tiberius/{genome}.gtf",
     params:
         #seq_len=259992,
-        batch_size=16,
+        batch_size=8,
     resources:
         mem="512G",
-        runtime=300,
+        runtime=600,
         gpu=1,
         partitionFlag="--partition=gpu-h100",
         exclusive="--exclusive",
+    benchmark:
+        "benchmarks/tiberius/{contig}.tsv",
     log:
         "logs/tiberius/{genome}.log",
     container:
