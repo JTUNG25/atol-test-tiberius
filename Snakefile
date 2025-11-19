@@ -2,7 +2,7 @@
 
 # containers
 tiberius = "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3"  # Nov 2025 updated container
-
+bbmap = "docker://quay.io/biocontainers/bbmap:39.37--he5f24ec_0"  # new version for bp=t
 # config
 input_genomes = [
     "A_magna",
