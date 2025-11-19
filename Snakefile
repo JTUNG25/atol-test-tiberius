@@ -56,7 +56,7 @@ rule tiberius:
         partitionFlag="--partition=gpu-h100",
         exclusive="--exclusive",
     benchmark:
-        "benchmarks/tiberius/{contig}.tsv",
+        "benchmarks/tiberius/{genome}.tsv",
     log:
         "logs/tiberius/{genome}.log",
     container:
