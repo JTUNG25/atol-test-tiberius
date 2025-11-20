@@ -51,7 +51,7 @@ rule tiberius:
         batch_size=8,
     resources:
         mem="512G",
-        runtime=600,
+        runtime=1440,
         gpu=1,
         partitionFlag="--partition=gpu-h100",
         exclusive="--exclusive",
