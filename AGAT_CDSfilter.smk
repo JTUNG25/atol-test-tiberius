@@ -15,7 +15,7 @@ input_genomes = [
     "P_halo",
     "N_erebi",
     "N_cryptoides",
-    "N_forsteri.8",
+    "N_forsteri",
 ]
 
 
