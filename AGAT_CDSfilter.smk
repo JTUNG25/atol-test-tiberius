@@ -34,31 +34,20 @@ rule summerize_qc:
     log:
         "logs/agat/{genome}.qc.log",
     shell:
-        """
-        # Header
-        echo -e "genome\ttotal_mRNA\tmissing_start\tpct_start\tmissing_stop\tpct_stop\tboth_missing\tinternal_stop\tpct_internal\tcds_not_div_by_3\tpct_not_div_by_3" > {output.tsv}
-
-        total=$(awk '$3 ~ /mRNA|transcript/' {input.gff} | wc -l)
-        [[ $total -eq 0 ]] && total=1  # avoid division by zero
-
-        missing_start=$(grep -c 'incomplete=1' {input.gff} || echo 0)
-        missing_stop=$(grep -c 'incomplete=2' {input.gff} || echo 0)
-        both_missing=$(grep -c 'incomplete=3' {input.gff} || echo 0)
-        internal_stop=$(grep -c 'pseudo=1' {input.gff} || echo 0)
-
-        # CDS length not divisible by 3 → count affected mRNAs (one bad CDS = whole mRNA bad)
-        not_div_by_3=$(awk '$3=="CDS" {{len=$5-$4+1; if(len%3!=0) print $9}}' {input.gff} | \
-                       grep -o 'Parent=[^;]*' | sort -u | wc -l)
-
-        # Calculate percentages using awk (more portable than bc)
-        pct_start=$(awk "BEGIN {{printf \"%.2f\", 100*$missing_start/$total}}")
-        pct_stop=$(awk "BEGIN {{printf \"%.2f\", 100*$missing_stop/$total}}")
-        pct_both=$(awk "BEGIN {{printf \"%.2f\", 100*$both_missing/$total}}")
-        pct_int=$(awk "BEGIN {{printf \"%.2f\", 100*$internal_stop/$total}}")
-        pct_div3=$(awk "BEGIN {{printf \"%.2f\", 100*$not_div_by_3/$total}}")
-
-        echo -e "{wildcards.genome}\t$total\t$missing_start\t$pct_start\t$missing_stop\t$pct_stop\t$both_missing\t$internal_stop\t$pct_int\t$not_div_by_3\t$pct_div3" >> {output.tsv}
-        """
+        "echo -e 'genome\\ttotal_mRNA\\tmissing_start\\tpct_start\\tmissing_stop\\tpct_stop\\tboth_missing\\tinternal_stop\\tpct_internal\\tcds_not_div_by_3\\tpct_not_div_by_3' > {output.tsv} && "
+        "total=$(awk '$3 ~ /mRNA|transcript/' {input.gff} | wc -l); [[ $total -eq 0 ]] && total=1; "
+        "missing_start=$(grep -c 'incomplete=1' {input.gff} || echo 0); "
+        "missing_stop=$(grep -c 'incomplete=2' {input.gff} || echo 0); "
+        "both_missing=$(grep -c 'incomplete=3' {input.gff} || echo 0); "
+        "internal_stop=$(grep -c 'pseudo=1' {input.gff} || echo 0); "
+        "not_div_by_3=$(awk '$3==\"CDS\" {{len=$5-$4+1; if(len%3!=0) print $9}}' {input.gff} | grep -o 'Parent=[^;]*' | sort -u | wc -l); "
+        "pct_start=$(awk \"BEGIN {{printf \\\"%.2f\\\", 100*$missing_start/$total}}\"); "
+        "pct_stop=$(awk \"BEGIN {{printf \\\"%.2f\\\", 100*$missing_stop/$total}}\"); "
+        "pct_both=$(awk \"BEGIN {{printf \\\"%.2f\\\", 100*$both_missing/$total}}\"); "
+        "pct_int=$(awk \"BEGIN {{printf \\\"%.2f\\\", 100*$internal_stop/$total}}\"); "
+        "pct_div3=$(awk \"BEGIN {{printf \\\"%.2f\\\", 100*$not_div_by_3/$total}}\"); "
+        "echo -e \"{wildcards.genome}\\t$total\\t$missing_start\\t$pct_start\\t$missing_stop\\t$pct_stop\\t$both_missing\\t$internal_stop\\t$pct_int\\t$not_div_by_3\\t$pct_div3\" >> {output.tsv} "
+        "&>> {log}"
 
 
 rule agat_filter_incomplete_CDS:
