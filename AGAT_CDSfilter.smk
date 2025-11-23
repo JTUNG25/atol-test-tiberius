@@ -34,7 +34,7 @@ rule summerize_qc:
     log:
         "logs/agat/{genome}.qc.log",
     shell:
-        "echo -e 'genome\\ttotal_mRNA\\tmissing_start\\tpct_start\\tmissing_stop\\tpct_stop\\tboth_missing\\tinternal_stop\\tpct_internal\\tcds_not_div_by_3\\tpct_not_div_by_3' > 2>&1 | tee {log} && "
+        "echo -e 'genome\\ttotal_mRNA\\tmissing_start\\tpct_start\\tmissing_stop\\tpct_stop\\tboth_missing\\tinternal_stop\\tpct_internal\\tcds_not_div_by_3\\tpct_not_div_by_3' > {output.tsv} 2>&1 | tee {log} && "
         "total=$(awk '$3 ~ /mRNA|transcript/' {input.gff} | wc -l); [[ $total -eq 0 ]] && total=1; "
         "missing_start=$(grep -c 'incomplete=1' {input.gff} || echo 0); "
         "missing_stop=$(grep -c 'incomplete=2' {input.gff} || echo 0); "
