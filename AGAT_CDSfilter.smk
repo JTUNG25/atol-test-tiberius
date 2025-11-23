@@ -53,7 +53,7 @@ rule summerize_qc:
         pct_div3=$(awk "BEGIN {{printf \"%.2f\", 100*$not_div_by_3/$total}}")
         
         echo -e "{wildcards.genome}\t$total\t$missing_start\t$pct_start\t$missing_stop\t$pct_stop\t$both_missing\t$internal_stop\t$pct_int\t$not_div_by_3\t$pct_div3" >> {output.tsv}
-        """ > {log} 2>&1
+        """ &>> {log}
 
 
 rule agat_filter_incomplete_CDS:
