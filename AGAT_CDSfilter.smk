@@ -16,6 +16,7 @@ input_genomes = [
     "N_erebi",
     "N_cryptoides",
     "N_forsteri",
+    "test"
 ]
 
 
@@ -88,7 +89,7 @@ rule flag_premature_stop_codon:
 
 rule filter_incomplete_CDS:
     input:
-        gtf="results/tiberius/{genome}.gtf",
+        gtf="results/tiberius/{genome}.gff",
         fasta="data/genomes/{genome}.fasta",
     output:
         gff="results/tiberius/agat/{genome}.qc.gff.temp1",
