@@ -40,7 +40,7 @@ rule summerize_qc:
         "agat_sp_statistics.pl "
         "--yaml "
         "--gff {input.gtf} "
-        "--output results/tiberius/agat/{wildcards.genome} "
+        "--output results/tiberius/agat/{wildcards.genome}.qc "
         "&>> {log}"
 
 
